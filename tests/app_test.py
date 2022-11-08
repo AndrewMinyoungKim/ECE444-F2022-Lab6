@@ -75,14 +75,39 @@ def test_messages(client):
 
 def test_delete_message(client):
     """Ensure the messages are being deleted"""
-    rv = client.get('/delete/1')
+    rv = client.get("/delete/1")
+    data = json.loads(rv.data)
+    assert data["status"] == 0
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    rv = client.get("/delete/1")
     data = json.loads(rv.data)
     assert data["status"] == 1
 
 def test_search(client):
-    """Written by Andrew Kim. Ensure search functions"""
+    """Written by Andrew Kim. Ensure search exists"""
     rv = client.get('/search/')
     # rv = client.get('/search/?query=random+test+input')
+
+def test_login_required(client):
+    """Written by Andrew Kim. Ensure login required to delete posts"""
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    rv = client.post(
+        "/add",
+        data=dict(title="<Goodbye>", text="<strong>HTML</strong> NOT allowed here"),
+        follow_redirects=True,
+    )
+    rv = client.post(
+        "/add",
+        data=dict(title="<Hello>", text="<strong>HTML</strong> allowed here"),
+        follow_redirects=True,
+    )
+    rv = client.get('/delete/2')
+    data = json.loads(rv.data)
+    assert data["status"] == 1
+    rv = logout(client)
+    rv = client.get('/delete/1')
+    data = json.loads(rv.data)
+    assert data["status"] == 0
 
 # def test_index():
 #     tester = app.test_client()
