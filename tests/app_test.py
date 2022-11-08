@@ -79,6 +79,11 @@ def test_delete_message(client):
     data = json.loads(rv.data)
     assert data["status"] == 1
 
+def test_search(client):
+    """Written by Andrew Kim. Ensure search functions"""
+    rv = client.get('/search/')
+    # rv = client.get('/search/?query=random+test+input')
+
 # def test_index():
 #     tester = app.test_client()
 #     response = tester.get("/", content_type="html/text")
