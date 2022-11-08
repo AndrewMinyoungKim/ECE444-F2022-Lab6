@@ -1,10 +1,10 @@
 import json
 import pytest
-import os
 from pathlib import Path
 from project.app import app, db
 
 TEST_DB = "test.db"
+
 
 @pytest.fixture
 def client():
@@ -12,10 +12,10 @@ def client():
     app.config["TESTING"] = True
     app.config["DATABASE"] = BASE_DIR.joinpath(TEST_DB)
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{BASE_DIR.joinpath(TEST_DB)}"
-    
-    db.create_all() # setup
-    yield app.test_client() # tests run here
-    db.drop_all() # teardown
+
+    db.create_all()  # setup
+    yield app.test_client()  # tests run here
+    db.drop_all()  # teardown
 
 
 def login(client, username, password):
@@ -73,6 +73,7 @@ def test_messages(client):
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
 
+
 def test_delete_message(client):
     """Ensure the messages are being deleted"""
     rv = client.get("/delete/1")
@@ -83,10 +84,12 @@ def test_delete_message(client):
     data = json.loads(rv.data)
     assert data["status"] == 1
 
-def test_search(client):
-    """Written by Andrew Kim. Ensure search exists"""
-    rv = client.get('/search/')
-    # rv = client.get('/search/?query=random+test+input')
+
+# def test_search(client):
+#     """Written by Andrew Kim. Ensure search exists"""
+#     rv = client.get('/search/')
+# rv = client.get('/search/?query=random+test+input')
+
 
 def test_login_required(client):
     """Written by Andrew Kim. Ensure login required to delete posts"""
@@ -101,13 +104,14 @@ def test_login_required(client):
         data=dict(title="<Hello>", text="<strong>HTML</strong> allowed here"),
         follow_redirects=True,
     )
-    rv = client.get('/delete/2')
+    rv = client.get("/delete/2")
     data = json.loads(rv.data)
     assert data["status"] == 1
     rv = logout(client)
-    rv = client.get('/delete/1')
+    rv = client.get("/delete/1")
     data = json.loads(rv.data)
     assert data["status"] == 0
+
 
 # def test_index():
 #     tester = app.test_client()
